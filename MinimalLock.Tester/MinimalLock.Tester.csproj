@@ -28,9 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="MutexSingle\" />
-    <Folder Include="SemaphoreSet\" />
-    <Folder Include="RwLockSet\" />
+    <Folder Include="MutexSingleCases\" />
+    <Folder Include="SemaphoreSetCases\" />
+    <Folder Include="RwLockSetCases\" />
   </ItemGroup>
 
 </Project>

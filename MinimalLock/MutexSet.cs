@@ -65,6 +65,7 @@
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public bool TryAcquire(TResourceID id)
         {
             ArgumentNullException.ThrowIfNull(id);
@@ -118,6 +119,59 @@
                         return false;
                     }
                     await Task.Delay(PollingIntervalMs);
+                }
+            }
+        }
+
+        /// <summary>
+        /// ignoring polling interval, spin wait.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="cancellationTokenSource"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public bool TryAcquireAfterBusyWait(
+            TResourceID id,
+            CancellationTokenSource? cancellationTokenSource = null)
+        {
+            ArgumentNullException.ThrowIfNull(id, nameof(id));
+
+            DateTime startTime = DateTime.Now;
+
+            var s = new SpinWait();
+
+            if (cancellationTokenSource == null)
+            {
+                while (true)
+                {
+                    if (_tasksOngoing.TryAdd(id, V))
+                    {
+                        return true;
+                    }
+                    else if (IsTimeout(startTime))
+                    {
+                        return false;
+                    }
+                    s.SpinOnce();
+                }
+            }
+            else
+            {
+                while (true)
+                {
+                    if (_tasksOngoing.TryAdd(id, V))
+                    {
+                        return true;
+                    }
+                    else if (cancellationTokenSource.IsCancellationRequested)
+                    {
+                        return false;
+                    }
+                    else if (IsTimeout(startTime))
+                    {
+                        return false;
+                    }
+                    s.SpinOnce();
                 }
             }
         }
