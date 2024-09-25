@@ -7,9 +7,9 @@
     public class MutexSet<TResourceID> : Internals.PollingCommons
         where TResourceID : notnull
     {
-        private const char V = '\n';
-        private System.Collections.Concurrent
-            .ConcurrentDictionary<TResourceID, char> _tasksOngoing { get; } = new();
+        private HashSet<TResourceID> _resources { get; } = new();
+
+        private object _writeLock { get; } = new();
 
 
         /// <summary>
@@ -29,7 +29,7 @@
 
             if (cancellationTokenSource == null)
             {
-                while (_tasksOngoing.ContainsKey(id)
+                while (_resources.Contains(id)
                     && !IsTimeout(startTime))
                 {
                     await Task.Delay(PollingIntervalMs);
@@ -37,7 +37,7 @@
             }
             else
             {
-                while (_tasksOngoing.ContainsKey(id)
+                while (_resources.Contains(id)
                     && !cancellationTokenSource.IsCancellationRequested
                     && !IsTimeout(startTime))
                 {
@@ -57,7 +57,7 @@
         public bool IsLocked(TResourceID id)
         {
             ArgumentNullException.ThrowIfNull(id, nameof(id));
-            return _tasksOngoing.ContainsKey(id);
+            return _resources.Contains(id);
         }
 
         /// <summary>
@@ -69,7 +69,10 @@
         public bool TryAcquire(TResourceID id)
         {
             ArgumentNullException.ThrowIfNull(id);
-            return _tasksOngoing.TryAdd(id, V);
+            lock (_writeLock)
+            {
+                return _resources.Add(id);
+            }
         }
 
         /// <summary>
@@ -91,7 +94,13 @@
             {
                 while (true)
                 {
-                    if (_tasksOngoing.TryAdd(id, V))
+                    bool added;
+                    lock (_writeLock)
+                    {
+                        added = _resources.Add(id);
+                    }
+
+                    if (added)
                     {
                         return true;
                     }
@@ -106,7 +115,13 @@
             {
                 while (true)
                 {
-                    if (_tasksOngoing.TryAdd(id, V))
+                    bool added;
+                    lock (_writeLock)
+                    {
+                        added = _resources.Add(id);
+                    }
+
+                    if (added)
                     {
                         return true;
                     }
@@ -144,7 +159,13 @@
             {
                 while (true)
                 {
-                    if (_tasksOngoing.TryAdd(id, V))
+                    bool added;
+                    lock (_writeLock)
+                    {
+                        added = _resources.Add(id);
+                    }
+
+                    if (added)
                     {
                         return true;
                     }
@@ -159,7 +180,13 @@
             {
                 while (true)
                 {
-                    if (_tasksOngoing.TryAdd(id, V))
+                    bool added;
+                    lock (_writeLock)
+                    {
+                        added = _resources.Add(id);
+                    }
+
+                    if (added)
                     {
                         return true;
                     }
@@ -185,7 +212,10 @@
         public void Release(TResourceID id)
         {
             ArgumentNullException.ThrowIfNull(id, nameof(id));
-            _tasksOngoing.Remove(id, out _);
+            lock (_writeLock)
+            {
+                _resources.Remove(id);
+            }
         }
 
         /// <summary>
@@ -194,7 +224,7 @@
         /// <returns></returns>
         public TResourceID[] GetLockedResources()
         {
-            return _tasksOngoing.Keys.ToArray();
+            return _resources.ToArray();
         }
 
         /// <summary>
@@ -202,7 +232,10 @@
         /// </summary>
         public void ForceReleaseAll()
         {
-            _tasksOngoing.Clear();
+            lock (_writeLock)
+            {
+                _resources.Clear();
+            }
         }
     }
 }
