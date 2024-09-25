@@ -60,7 +60,8 @@
         public async Task<bool> TryAcquireAfterWait(
             CancellationTokenSource? cancellationTokenSource = null)
         {
-            return await _singleMutexSet.TryAcquireAfterWait(KEY, cancellationTokenSource);
+            throw new NotImplementedException();
+            //return await _singleMutexSet.TryAcquireAfterWait(KEY, cancellationTokenSource);
         }
 
         /// <summary>

@@ -66,7 +66,8 @@
 
             DateTime startTime = DateTime.Now;
 
-            bool writingAcquired = await _writes.TryAcquireAfterWait(id, cancellationTokenSource);
+            throw new NotImplementedException();
+            bool writingAcquired = false;//await _writes.TryAcquireAfterWait(id, cancellationTokenSource);
 
             while (_reads.IsUsed(id))
             {

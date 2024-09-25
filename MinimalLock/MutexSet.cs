@@ -82,11 +82,13 @@
         /// <param name="cancellationTokenSource"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<bool> TryAcquireAfterWait(
+        public async Task<(bool acquired, List<DateTime> loopTimestamps)> TryAcquireAfterWait(
             TResourceID id,
             CancellationTokenSource? cancellationTokenSource = null)
         {
             ArgumentNullException.ThrowIfNull(id, nameof(id));
+
+            var loops = new List<DateTime>(1024);
 
             DateTime startTime = DateTime.Now;
 
@@ -94,6 +96,7 @@
             {
                 while (true)
                 {
+                    loops.Add(DateTime.Now);
                     bool added;
                     lock (_writeLock)
                     {
@@ -102,11 +105,11 @@
 
                     if (added)
                     {
-                        return true;
+                        return (true, loops);
                     }
                     else if (IsTimeout(startTime))
                     {
-                        return false;
+                        return (false, loops);
                     }
                     await Task.Delay(PollingIntervalMs);
                 }
@@ -115,6 +118,7 @@
             {
                 while (true)
                 {
+                    loops.Add(DateTime.Now);
                     bool added;
                     lock (_writeLock)
                     {
@@ -123,15 +127,15 @@
 
                     if (added)
                     {
-                        return true;
+                        return (true, loops);
                     }
                     else if (cancellationTokenSource.IsCancellationRequested)
                     {
-                        return false;
+                        return (false, loops);
                     }
                     else if (IsTimeout(startTime))
                     {
-                        return false;
+                        return (false, loops);
                     }
                     await Task.Delay(PollingIntervalMs);
                 }
@@ -145,15 +149,15 @@
         /// <param name="cancellationTokenSource"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public bool TryAcquireAfterBusyWait(
+        public (bool acquired, List<DateTime> loopTimestamps) TryAcquireAfterBusyWait(
             TResourceID id,
             CancellationTokenSource? cancellationTokenSource = null)
         {
             ArgumentNullException.ThrowIfNull(id, nameof(id));
 
-            DateTime startTime = DateTime.Now;
+            var loops = new List<DateTime>(1024);
 
-            var s = new SpinWait();
+            DateTime startTime = DateTime.Now;
 
             if (cancellationTokenSource == null)
             {
@@ -167,13 +171,15 @@
 
                     if (added)
                     {
-                        return true;
+                        loops.Add(DateTime.Now);
+                        return (true, loops);
                     }
                     else if (IsTimeout(startTime))
                     {
-                        return false;
+                        loops.Add(DateTime.Now);
+                        return (false, loops);
                     }
-                    s.SpinOnce();
+                    loops.Add(DateTime.Now);
                 }
             }
             else
@@ -188,17 +194,20 @@
 
                     if (added)
                     {
-                        return true;
+                        loops.Add(DateTime.Now);
+                        return (true,loops);
                     }
                     else if (cancellationTokenSource.IsCancellationRequested)
                     {
-                        return false;
+                        loops.Add(DateTime.Now);
+                        return (false,loops);
                     }
                     else if (IsTimeout(startTime))
                     {
-                        return false;
+                        loops.Add(DateTime.Now);
+                        return (false,loops);
                     }
-                    s.SpinOnce();
+                    loops.Add(DateTime.Now);
                 }
             }
         }
