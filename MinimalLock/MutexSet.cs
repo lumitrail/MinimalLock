@@ -52,6 +52,44 @@
         /// 
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="cancellationTokenSource"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public double WaitShortly(
+            TResourceID id,
+            CancellationTokenSource? cancellationTokenSource = null)
+        {
+            ArgumentNullException.ThrowIfNull(id, nameof(id));
+
+            var s = new SpinWait();
+
+            DateTime startTime = DateTime.Now;
+
+            if (cancellationTokenSource == null)
+            {
+                while (_tasksOngoing.ContainsKey(id)
+                    && !IsTimeout(startTime))
+                {
+                    s.SpinOnce();
+                }
+            }
+            else
+            {
+                while (_tasksOngoing.ContainsKey(id)
+                    && !cancellationTokenSource.IsCancellationRequested
+                    && !IsTimeout(startTime))
+                {
+                    s.SpinOnce();
+                }
+            }
+
+            return GetElapsedTimeMs(startTime);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         public bool IsLocked(TResourceID id)
@@ -73,7 +111,7 @@
         }
 
         /// <summary>
-        /// 기다려서 얻기
+        /// When you are going to wait tens of milliseconds
         /// </summary>
         /// <param name="id"></param>
         /// <param name="cancellationTokenSource"></param>
@@ -124,13 +162,13 @@
         }
 
         /// <summary>
-        /// ignoring polling interval, spin wait.
+        /// When you are going to wait few milliseconds
         /// </summary>
         /// <param name="id"></param>
         /// <param name="cancellationTokenSource"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public bool TryAcquireAfterBusyWait(
+        public bool TryAcquireAfterWaitShortly(
             TResourceID id,
             CancellationTokenSource? cancellationTokenSource = null)
         {

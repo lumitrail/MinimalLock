@@ -3,7 +3,7 @@
     public abstract class PollingCommons
     {
         /// <summary>Wait loop granularity</summary>
-        /// <remarks>Range: [1ms, 30sec]</remarks>
+        /// <remarks>Typical effective range: [15.625ms, 30sec] due to system clock interrupt rate</remarks>
         public int PollingIntervalMs
         {
             get => _pollingIntervalMs;
@@ -12,16 +12,16 @@
         private int _pollingIntervalMs = 10;
 
         /// <summary>Wait timeout</summary>
-        /// <remarks>Range: [10ms, 1hour]</remarks>
+        /// <remarks>Effective range: [16ms, 10min]</remarks>
         public int DefaultWaitTimeoutMs
         {
             get => _defaultWaitTimeoutMs;
-            set => _defaultWaitTimeoutMs = Math.Min(Math.Max(10, value), 3600000);
+            set => _defaultWaitTimeoutMs = Math.Min(Math.Max(10, value), 600000);
         }
         private int _defaultWaitTimeoutMs = 10000;
 
         /// <summary>
-        /// Checks whether it's timeout, from startTime?
+        /// Checks whether it's timeout, from startTime.
         /// </summary>
         /// <param name="startTime"></param>
         /// <returns></returns>
@@ -31,7 +31,7 @@
         }
 
         /// <summary>
-        /// Elapsed time from startTime
+        /// Gets elapsed time from startTime in milliseconds.
         /// </summary>
         /// <param name="startTime"></param>
         /// <returns></returns>
