@@ -79,121 +79,28 @@
         }
 
         [Fact]
-        public async Task AcquireMakesWaiters()
+        public async Task AcquireMakesWaitersWait()
         {
-            await AcquireMakesWaitersBase(false);
+            await AcquireMakesWaitersWaitBase(false);
         }
 
 
         [Fact]
-        public async Task AcquireMakesWaitersWithBusyWait()
+        public async Task AcquireMakesWaitersBusyWait()
         {
-            await AcquireMakesWaitersBase(true);
+            await AcquireMakesWaitersWaitBase(true);
         }
 
         [Fact]
-        public async Task AcquireWaitTimeout()
+        public async Task AcquireTimeout()
         {
-            await AcquireWaitTimeoutBase(false);
+            await AcquireTimeoutBase(false);
         }
 
         [Fact]
-        public async Task AcquireWaitTimeoutWithBusyWait()
+        public async Task AcquireTimeoutWithBusyWait()
         {
-            await AcquireWaitTimeoutBase(true);
-        }
-
-        private async Task AcquireWaitTimeoutBase(bool useBusyWait)
-        {
-            MutexSet<string> a = new();
-            (string stringID1, _, _) = GetIDs();
-            a.PollingIntervalMs = 1;
-            console.WriteLine($"Wait polling {a.PollingIntervalMs}ms");
-
-            int delayMs = Convert.ToInt32(RNG.NextDouble() * 1000);
-            a.DefaultWaitTimeoutMs = delayMs / 2;
-
-            Assert.True(a.TryAcquire(stringID1));
-
-            DateTime startTime = DateTime.MinValue;
-
-            // Release after delayMs
-            Task t = Task.Run(async () => { startTime = DateTime.Now; await Task.Delay(delayMs); a.Release(stringID1); Assert.False(a.IsLocked(stringID1)); });
-
-            // Can't acquire as its timeout < delayMs
-            bool isAcquired;
-
-            if (useBusyWait)
-            {
-                isAcquired = a.TryAcquireAfterBusyWait(stringID1);
-            }
-            else
-            {
-                isAcquired = await a.TryAcquireAfterWait(stringID1);
-            }
-
-            DateTime endTime = DateTime.Now;
-
-            Assert.False(isAcquired);
-            Assert.True(a.IsLocked(stringID1));
-
-            double elapsedTimeMs = (endTime - startTime).TotalMilliseconds;
-
-            console.WriteLine($"Delay: {delayMs}, Timeout: {a.DefaultWaitTimeoutMs}, Elapsed: {elapsedTimeMs}.");
-            console.WriteLine($"Performance loss: {elapsedTimeMs - a.DefaultWaitTimeoutMs}ms");
-
-            Assert.True(elapsedTimeMs < delayMs);
-            Assert.True(elapsedTimeMs >= a.DefaultWaitTimeoutMs);
-
-            await t;
-            // released now
-            Assert.False(a.IsLocked(stringID1));
-        }
-
-        private async Task AcquireMakesWaitersBase(bool useBusyWait)
-        {
-            MutexSet<string> a = new();
-            (string stringID1, _, _) = GetIDs();
-            a.PollingIntervalMs = 1;
-            console.WriteLine($"Wait polling {a.PollingIntervalMs}ms");
-
-            int delayMs = Convert.ToInt32(RNG.NextDouble() * 1000);
-            a.DefaultWaitTimeoutMs = 2 * delayMs;
-
-            Assert.True(a.TryAcquire(stringID1));
-
-            DateTime startTime = DateTime.MinValue;
-
-            // Release after delayMs
-            Task t = Task.Run(async () => { startTime = DateTime.Now; await Task.Delay(delayMs); a.Release(stringID1); Assert.False(a.IsLocked(stringID1)); });
-
-            // Acquire after delayMs
-            bool isAcquired;
-
-            if (useBusyWait)
-            {
-                isAcquired = a.TryAcquireAfterBusyWait(stringID1);
-            }
-            else
-            {
-                isAcquired = await a.TryAcquireAfterWait(stringID1);
-            }
-
-            DateTime endTime = DateTime.Now;
-
-            Assert.True(isAcquired);
-            Assert.True(a.IsLocked(stringID1));
-
-            double elapsedTimeMs = (endTime - startTime).TotalMilliseconds;
-
-            console.WriteLine($"Delay: {delayMs}, Timeout: {a.DefaultWaitTimeoutMs}, Elapsed: {elapsedTimeMs}");
-            console.WriteLine($"Performance loss: {elapsedTimeMs - delayMs}ms");
-
-            Assert.True(elapsedTimeMs >= delayMs);
-            Assert.True(elapsedTimeMs < a.DefaultWaitTimeoutMs);
-
-            await t;
-            Assert.True(a.IsLocked(stringID1));
+            await AcquireTimeoutBase(true);
         }
 
         [Fact]
@@ -218,6 +125,99 @@
                 a.Release(stringID1);
                 Assert.False(a.IsLocked(stringID1));
             }
+        }
+
+        private async Task AcquireMakesWaitersWaitBase(bool useBusyWait)
+        {
+            MutexSet<string> a = new();
+            (string stringID1, _, _) = GetIDs();
+            a.PollingIntervalMs = 1;
+            console.WriteLine($"Wait polling {a.PollingIntervalMs}ms");
+
+            int delayMs = Convert.ToInt32(RNG.NextDouble() * 1000);
+            a.DefaultWaitTimeoutMs = 2 * delayMs;
+
+            Assert.True(a.TryAcquire(stringID1));
+
+            DateTime startTime = DateTime.MinValue;
+
+            // Release after delayMs
+            Task t = Task.Run(async () => { startTime = DateTime.Now; await Task.Delay(delayMs); a.Release(stringID1); Assert.False(a.IsLocked(stringID1)); });
+
+            // Acquire after delayMs
+            bool isAcquired;
+
+            if (useBusyWait)
+            {
+                isAcquired = a.TryAcquireAfterShortWait(stringID1);
+            }
+            else
+            {
+                isAcquired = await a.TryAcquireAfterWait(stringID1);
+            }
+
+            DateTime endTime = DateTime.Now;
+
+            Assert.True(isAcquired);
+            Assert.True(a.IsLocked(stringID1));
+
+            double elapsedTimeMs = (endTime - startTime).TotalMilliseconds;
+
+            console.WriteLine($"Delay: {delayMs}, Timeout: {a.DefaultWaitTimeoutMs}, Elapsed: {elapsedTimeMs}");
+            console.WriteLine($"Performance loss: {elapsedTimeMs - delayMs}ms");
+
+            Assert.True(elapsedTimeMs >= delayMs);
+            Assert.True(elapsedTimeMs < a.DefaultWaitTimeoutMs);
+
+            await t;
+            Assert.True(a.IsLocked(stringID1));
+        }
+
+        private async Task AcquireTimeoutBase(bool useBusyWait)
+        {
+            MutexSet<string> a = new();
+            (string stringID1, _, _) = GetIDs();
+            a.PollingIntervalMs = 1;
+            console.WriteLine($"Wait polling {a.PollingIntervalMs}ms");
+
+            int delayMs = Convert.ToInt32(RNG.NextDouble() * 1000);
+            a.DefaultWaitTimeoutMs = delayMs / 2;
+
+            Assert.True(a.TryAcquire(stringID1));
+
+            DateTime startTime = DateTime.MinValue;
+
+            // Release after delayMs
+            Task t = Task.Run(async () => { startTime = DateTime.Now; await Task.Delay(delayMs); a.Release(stringID1); Assert.False(a.IsLocked(stringID1)); });
+
+            // Can't acquire as its timeout < delayMs
+            bool isAcquired;
+
+            if (useBusyWait)
+            {
+                isAcquired = a.TryAcquireAfterShortWait(stringID1);
+            }
+            else
+            {
+                isAcquired = await a.TryAcquireAfterWait(stringID1);
+            }
+
+            DateTime endTime = DateTime.Now;
+
+            Assert.False(isAcquired);
+            Assert.True(a.IsLocked(stringID1));
+
+            double elapsedTimeMs = (endTime - startTime).TotalMilliseconds;
+
+            console.WriteLine($"Delay: {delayMs}, Timeout: {a.DefaultWaitTimeoutMs}, Elapsed: {elapsedTimeMs}.");
+            console.WriteLine($"Performance loss: {elapsedTimeMs - a.DefaultWaitTimeoutMs}ms");
+
+            Assert.True(elapsedTimeMs < delayMs);
+            Assert.True(elapsedTimeMs >= a.DefaultWaitTimeoutMs);
+
+            await t;
+            // released now
+            Assert.False(a.IsLocked(stringID1));
         }
 
         private (string id1, string id2, string id3) GetIDs()

@@ -168,7 +168,7 @@
         /// <param name="cancellationTokenSource"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public bool TryAcquireAfterWaitShortly(
+        public bool TryAcquireAfterShortWait(
             TResourceID id,
             CancellationTokenSource? cancellationTokenSource = null)
         {
