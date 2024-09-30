@@ -1,10 +1,10 @@
 ﻿namespace MinimalLock
 {
     /// <summary>
-    /// 1. 읽기는 읽기를 막지 않음<br></br>
-    /// 2. 읽기는 쓰기를 막음<br></br>
-    /// 3. 쓰기는 읽기를 막음(세부 내용 필요, 이미 있는 읽기는 종료를 기다리며 추가 읽기는 막음-2때문)<br></br>
-    /// 4. 쓰기는 쓰기를 막음<br></br>
+    /// 1. Read doesn't block reads<br></br>
+    /// 2. Read blocks writes<br></br>
+    /// 3. Write blocks reads(while waiting ongoing reads)<br></br>
+    /// 4. Write blocks writes<br></br>
     /// </summary>
     /// <typeparam name="TResourceID">resource id</typeparam>
     public class RwLockSet<TResourceID> : Internals.PollingCommons
