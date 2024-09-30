@@ -53,7 +53,7 @@
         /// </summary>
         /// <param name="id"></param>
         /// <param name="cancellationTokenSource"></param>
-        /// <returns></returns>
+        /// <returns>time waited in ms</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public double WaitShortly(
             TResourceID id,
@@ -99,7 +99,7 @@
         }
 
         /// <summary>
-        /// 한번 얻어 보기
+        /// 
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -230,7 +230,7 @@
         /// 
         /// </summary>
         /// <returns></returns>
-        public TResourceID[] GetLockedResources()
+        public TResourceID[] GetUsedResources()
         {
             return _tasksOngoing.Keys.ToArray();
         }

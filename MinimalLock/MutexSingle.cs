@@ -1,7 +1,7 @@
 ﻿namespace MinimalLock
 {
     /// <summary>
-    /// v1
+    /// MutexSet wrapper for only 1 resource
     /// </summary>
     public class MutexSingle
     {
@@ -25,7 +25,7 @@
 
 
         /// <summary>
-        /// 
+        /// <inheritdoc cref="MutexSet{TResourceID}.Wait(TResourceID, CancellationTokenSource?)"/>
         /// </summary>
         /// <param name="cancellationTokenSource"></param>
         /// <returns>time waited in ms</returns>
@@ -35,7 +35,18 @@
         }
 
         /// <summary>
-        /// 
+        /// <inheritdoc cref="MutexSet{TResourceID}.WaitShortly(TResourceID, CancellationTokenSource?)"/>
+        /// </summary>
+        /// <param name="cancellationTokenSource"></param>
+        /// <returns></returns>
+        public double WaitShortly(
+            CancellationTokenSource? cancellationTokenSource = null)
+        {
+            return _singleMutexSet.WaitShortly(KEY, cancellationTokenSource);
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="MutexSet{TResourceID}.IsLocked(TResourceID)"/>
         /// </summary>
         /// <returns></returns>
         public bool IsLocked()
@@ -44,7 +55,7 @@
         }
 
         /// <summary>
-        /// 
+        /// <inheritdoc cref="MutexSet{TResourceID}.TryAcquire(TResourceID)"/>
         /// </summary>
         /// <returns></returns>
         public bool TryAcquire()
@@ -53,7 +64,7 @@
         }
 
         /// <summary>
-        /// 기다려서 얻기
+        /// <inheritdoc cref="MutexSet{TResourceID}.TryAcquireAfterWait(TResourceID, CancellationTokenSource?)"/>
         /// </summary>
         /// <param name="cancellationTokenSource"></param>
         /// <returns></returns>
@@ -64,7 +75,18 @@
         }
 
         /// <summary>
-        /// 
+        /// <inheritdoc cref="MutexSet{TResourceID}.TryAcquireAfterShortWait(TResourceID, CancellationTokenSource?)"/>
+        /// </summary>
+        /// <param name="cancellationTokenSource"></param>
+        /// <returns></returns>
+        public bool TryAcquireAfterShortWait(
+            CancellationTokenSource? cancellationTokenSource = null)
+        {
+            return _singleMutexSet.TryAcquireAfterShortWait(KEY, cancellationTokenSource);
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="MutexSet{TResourceID}.Release(TResourceID)"/>
         /// </summary>
         public void Release()
         {

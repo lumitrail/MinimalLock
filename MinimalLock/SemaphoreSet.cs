@@ -7,7 +7,8 @@
     public class SemaphoreSet<TResourceID> : Internals.PollingCommons
         where TResourceID : notnull
     {
-        /// <summary>최대 진입 허용 수, 1 이상</summary>
+        /// <summary>
+        /// </summary>
         public int MaxAllowed
         {
             get => _maxAllowed;
@@ -21,7 +22,6 @@
 
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="id"></param>
         /// <param name="cancellationTokenSource"></param>
@@ -111,7 +111,7 @@
         }
 
         /// <summary>
-        /// 
+        /// Someone is accessing (1 or more).
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -120,12 +120,19 @@
         {
             ArgumentNullException.ThrowIfNull(id, nameof(id));
 
-            return !_insiders.TryGetValue(id, out SemaphoreElem? e)
-                || e.Count == 0;
+            if (_insiders.TryGetValue(id, out SemaphoreElem? e)
+                && e.Count > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
-        /// 
+        /// MaxAllowed are accessing.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -144,7 +151,6 @@
         }
 
         /// <summary>
-        /// 한번 얻어 보기
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -312,7 +318,7 @@
         /// 
         /// </summary>
         /// <returns></returns>
-        public SemaphoreValues[] GetLockedResources()
+        public SemaphoreValues[] GetUsedResources()
         {
             var resultList = new List<SemaphoreValues>(_insiders.Count);
 

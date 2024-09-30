@@ -29,7 +29,6 @@
 
   <ItemGroup>
     <Folder Include="MutexSingleCases\" />
-    <Folder Include="SemaphoreSetCases\" />
     <Folder Include="RwLockSetCases\" />
   </ItemGroup>
 
