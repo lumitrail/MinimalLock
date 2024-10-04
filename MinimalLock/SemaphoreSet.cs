@@ -8,13 +8,14 @@
         where TResourceID : notnull
     {
         /// <summary>
+        /// Default: 100
         /// </summary>
         public int MaxAllowed
         {
             get => _maxAllowed;
             set => _maxAllowed = Math.Max(1, value);
         }
-        private int _maxAllowed;
+        private int _maxAllowed = 100;
 
 
         private System.Collections.Concurrent

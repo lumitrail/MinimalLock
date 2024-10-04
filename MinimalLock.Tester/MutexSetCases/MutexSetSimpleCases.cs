@@ -71,17 +71,17 @@
             Assert.True(a.TryAcquire(stringID1));
             Assert.False(a.TryAcquire(stringID1));
 
-            a.Release(stringID1);
+            Assert.True(a.TryRelease(stringID1));
 
             Assert.False(a.IsLocked(stringID1));
             Assert.True(a.TryAcquire(stringID1));
 
-            a.Release(stringID1);
+            Assert.True(a.TryRelease(stringID1));
 
             Assert.False(a.IsLocked(stringID1));
             Assert.True(a.TryAcquire(stringID1));
 
-            a.Release(stringID1);
+            Assert.True(a.TryRelease(stringID1));
 
             Assert.False(a.IsLocked(stringID1));
         }
@@ -121,7 +121,7 @@
             {
                 Assert.True(a.TryAcquire(stringID1));
                 Assert.True(a.IsLocked(stringID1));
-                a.Release(stringID1);
+                Assert.True(a.TryRelease(stringID1));
                 Assert.False(a.IsLocked(stringID1));
             }
 
@@ -129,7 +129,7 @@
             {
                 Assert.True(await a.TryAcquireAfterWait(stringID1));
                 Assert.True(a.IsLocked(stringID1));
-                a.Release(stringID1);
+                Assert.True(a.TryRelease(stringID1));
                 Assert.False(a.IsLocked(stringID1));
             }
         }
@@ -194,7 +194,7 @@
             Task t = Task.Run(async () => {
                 startTime = DateTime.Now;
                 await Task.Delay(delayMs);
-                a.Release(stringID1);
+                Assert.True(a.TryRelease(stringID1));
             });
 
             // Acquire after delayMs
@@ -244,7 +244,7 @@
             Task t = Task.Run(async () => {
                 startTime = DateTime.Now;
                 await Task.Delay(delayMs);
-                a.Release(stringID1);
+                Assert.True(a.TryRelease(stringID1));
             });
 
             // Can't acquire as its timeout < delayMs

@@ -29,7 +29,6 @@
 
   <ItemGroup>
     <Folder Include="MutexSingleCases\" />
-    <Folder Include="RwLockSetCases\" />
   </ItemGroup>
 
 </Project>

@@ -220,10 +220,10 @@
         /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public void Release(TResourceID id)
+        public bool TryRelease(TResourceID id)
         {
             ArgumentNullException.ThrowIfNull(id, nameof(id));
-            _tasksOngoing.Remove(id, out _);
+            return _tasksOngoing.TryRemove(id, out _);
         }
 
         /// <summary>

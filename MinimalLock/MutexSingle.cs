@@ -88,9 +88,9 @@
         /// <summary>
         /// <inheritdoc cref="MutexSet{TResourceID}.Release(TResourceID)"/>
         /// </summary>
-        public void Release()
+        public bool TryRelease()
         {
-            _singleMutexSet.Release(KEY);
+            return _singleMutexSet.TryRelease(KEY);
         }
     }
 }
