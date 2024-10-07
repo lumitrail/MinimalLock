@@ -11,6 +11,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/lumitrail/MinimalLock</RepositoryUrl>
     <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+    <PackageTags>C#;.NET8.0</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
