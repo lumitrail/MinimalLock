@@ -3,17 +3,15 @@
     /// <summary>
     /// MutexSet wrapper for only 1 resource
     /// </summary>
-    public class MutexSingle
+    public class MutexSingle : Internals.PollingCommons
     {
-        /// <inheritdoc cref="MutexSet{TResourceID}.PollingIntervalMs"/>
-        public int PollingIntervalMs
+        public override int PollingIntervalMs
         {
             get => _singleMutexSet.PollingIntervalMs;
             set => _singleMutexSet.PollingIntervalMs = value;
         }
 
-        /// <inheritdoc cref="MutexSet{TResourceID}.DefaultWaitTimeoutMs"/>
-        public int DefaultWaitTimeoutMs
+        public override int DefaultWaitTimeoutMs
         {
             get => _singleMutexSet.DefaultWaitTimeoutMs;
             set => _singleMutexSet.DefaultWaitTimeoutMs = value;
